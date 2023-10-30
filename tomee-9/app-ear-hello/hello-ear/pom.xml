@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+
+   <parent>
+      <artifactId>appearhello</artifactId>
+      <groupId>appearhello</groupId>
+      <version>1.0-SNAPSHOT</version>
+   </parent>
+
+   <artifactId>hello-ear</artifactId>
+   <packaging>ear</packaging>
+
+   <name>App Hello EAR module</name>
+
+   <dependencies>
+      <dependency>
+         <groupId>appearhello</groupId>
+         <artifactId>hello-web</artifactId>
+         <type>war</type>
+      </dependency>
+      <dependency>
+         <groupId>appearhello</groupId>
+         <artifactId>hello-ejb</artifactId>
+         <type>ejb</type>
+      </dependency>
+   </dependencies>
+
+   <build>
+      <finalName>appearhello</finalName>
+      <plugins>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-ear-plugin</artifactId>
+            <version>3.3.0</version>
+            <configuration>
+               <version>9</version>
+               <defaultLibBundleDir>lib</defaultLibBundleDir>
+               <modules>
+                  <webModule>
+                     <groupId>appearhello</groupId>
+                     <artifactId>hello-web</artifactId>
+                     <contextRoot>/appearhello</contextRoot>
+                  </webModule>
+               </modules>
+            </configuration>
+         </plugin>
+      </plugins>
+   </build>
+
+</project>
