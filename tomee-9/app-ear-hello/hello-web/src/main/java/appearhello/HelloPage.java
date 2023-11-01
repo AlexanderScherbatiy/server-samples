@@ -2,6 +2,7 @@ package appearhello;
 
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 
 @Path("/hello")
 public class HelloPage {
@@ -10,6 +11,12 @@ public class HelloPage {
 
     @GET
     public String hello() {
-        return String.format("EJB sample version: %s", VERSION);
+        return String.format("Hello, World! Version: %s.", VERSION);
+    }
+
+    @GET
+    @Path("/{name}")
+    public String hello(@PathParam("name") String name) {
+        return String.format("Hello, %s! Version: %s%n", name, VERSION);
     }
 }
