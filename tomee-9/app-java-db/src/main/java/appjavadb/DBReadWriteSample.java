@@ -5,37 +5,17 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import static appjavadb.DBUtils.*;
+
 public class DBReadWriteSample {
 
-    private static final String DB_URL = System.getProperty("db.url");
+    private static final String DROP_TABLE = String.format("DROP TABLE IF EXISTS %s", DB_TABLE);
 
-    private static final String DB_USER = System.getProperty("db.user");
+    private static final String CREATE_TABLE = String.format("CREATE TABLE %s (ID BIGINT IDENTITY NOT NULL PRIMARY KEY, prop_name VARCHAR(255), prop_value BIGINT)", DB_TABLE);
 
-    private static final String DB_PASS = System.getProperty("db.pass");
+    private static final String TEMPLATE_INSERT_TABLE = String.format("INSERT INTO %s VALUES (?, ?, ?)", DB_TABLE);
 
-    private static final int DB_RECORDS = Integer.parseInt(System.getProperty("db.records", "10"));
-
-    private static final int DB_THREADS = Integer.parseInt(System.getProperty("db.threads", "20"));
-
-    private static final int DB_WRITERS = Integer.parseInt(System.getProperty("db.writers", "10"));
-
-    private static final int DB_READ_ITERATIONS = Integer.parseInt(System.getProperty("db.reads", "10"));
-
-    private static final int DB_WRITE_ITERATIONS = Integer.parseInt(System.getProperty("db.writes", "10"));
-
-    private static final String TABLE_MAIN = "TABLE_PROPS";
-
-    private static final String DROP_MAIN_TABLE = String.format("DROP TABLE IF EXISTS %s", TABLE_MAIN);
-
-    private static final String CREATE_MAIN_TABLE = String.format("CREATE TABLE %s (ID BIGINT IDENTITY NOT NULL PRIMARY KEY, prop_name VARCHAR(255), prop_value BIGINT)", TABLE_MAIN);
-
-    private static final String TEMPLATE_INSERT_MAIN_TABLE = String.format("INSERT INTO %s VALUES (?, ?, ?)", TABLE_MAIN);
-
-    private static final String TEMPLATE_UPDATE_MAIN_TABLE = String.format("update %s set prop_value=? where id=?", TABLE_MAIN);
-
-    private static boolean DEBUG_LOG = Boolean.getBoolean("db.debug.log");
-
-    private static boolean DEBUG_RECORDS = Boolean.getBoolean("db.debug.records");
+    private static final String TEMPLATE_UPDATE_TABLE = String.format("update %s set prop_value=? where id=?", DB_TABLE);
 
     public static void main(String[] args) throws Exception {
 
@@ -65,11 +45,11 @@ public class DBReadWriteSample {
     private static void initDB(Connection connection) throws SQLException {
         debug("init db%n");
         try (Statement stmt = connection.createStatement()) {
-            stmt.execute(DROP_MAIN_TABLE);
-            stmt.execute(CREATE_MAIN_TABLE);
+            stmt.execute(DROP_TABLE);
+            stmt.execute(CREATE_TABLE);
 
             for (int i = 0; i < DB_RECORDS; i++) {
-                try (PreparedStatement preparedStatement = connection.prepareStatement(TEMPLATE_INSERT_MAIN_TABLE)) {
+                try (PreparedStatement preparedStatement = connection.prepareStatement(TEMPLATE_INSERT_TABLE)) {
                     preparedStatement.setLong(1, i);
                     preparedStatement.setString(2, "name_" + i);
                     preparedStatement.setLong(3, i);
@@ -107,7 +87,7 @@ public class DBReadWriteSample {
                 latch.await();
                 for (int i = 0; i < readIterations; i++) {
                     long time = System.nanoTime();
-                    readDB(connection);
+                    readDB(connection, DB_TABLE);
                     totalTime += System.nanoTime() - time;
                 }
             } catch (SQLException | InterruptedException e) {
@@ -179,7 +159,7 @@ public class DBReadWriteSample {
                 long time = 0;
                 for (int iteration = 0; iteration < DB_READ_ITERATIONS; iteration++) {
                     time = System.nanoTime();
-                    readDB(connection);
+                    readDB(connection, DB_TABLE);
                     totalTime += (System.nanoTime() - time);
                 }
             } catch (InterruptedException | SQLException e) {
@@ -198,29 +178,13 @@ public class DBReadWriteSample {
         executor.shutdown();
     }
 
-    private static void readDB(Connection connection) throws SQLException {
-        String select = "SELECT * from " + TABLE_MAIN;
-        try (Statement stmt = connection.createStatement()) {
-            ResultSet resultSet = stmt.executeQuery(select);
-            long sum = 0;
-            while (resultSet.next()) {
-                long id = resultSet.getLong("ID");
-                String propName = resultSet.getString("prop_name");
-                long propValue = resultSet.getLong("prop_value");
-                debugRecords("read id: %d, name: %s, value: %d%n", id, propName, propValue);
-                sum += propValue;
-            }
-            debugRecords("values sum: %d%n", sum);
-        }
-    }
-
     private static void updateDB(Connection connection, int startIndex, int interval, int baseValue) throws SQLException {
 
         try (Statement stmt = connection.createStatement()) {
 
             int value = baseValue;
             for (int index = startIndex; index < startIndex + interval; index++) {
-                try (PreparedStatement preparedStatement = connection.prepareStatement(TEMPLATE_UPDATE_MAIN_TABLE)) {
+                try (PreparedStatement preparedStatement = connection.prepareStatement(TEMPLATE_UPDATE_TABLE)) {
                     preparedStatement.setLong(1, value++);
                     preparedStatement.setLong(2, index);
                     preparedStatement.executeUpdate();
@@ -229,26 +193,8 @@ public class DBReadWriteSample {
         }
     }
 
-    private static Connection createConnection() throws SQLException {
-        return DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
-    }
-
     private static void showTime(String message, long time) {
         double t = ((double) time) / 1_000_000;
         System.out.printf("%s, time: %fms%n", message, t);
-    }
-
-    private static void debug(String format, Object... args) {
-        debug(DEBUG_LOG, format, args);
-    }
-
-    private static void debugRecords(String format, Object... args) {
-        debug(DEBUG_RECORDS, format, args);
-    }
-
-    private static void debug(boolean debug, String format, Object... args) {
-        if (debug) {
-            System.out.printf(format, args);
-        }
     }
 }

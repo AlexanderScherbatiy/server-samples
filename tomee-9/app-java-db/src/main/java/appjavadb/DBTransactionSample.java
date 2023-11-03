@@ -2,13 +2,9 @@ package appjavadb;
 
 import java.sql.*;
 
+import static appjavadb.DBUtils.*;
+
 public class DBTransactionSample {
-
-    private static final String DB_URL = System.getProperty("db.url");
-
-    private static final String DB_USER = System.getProperty("db.user");
-
-    private static final String DB_PASS = System.getProperty("db.pass");
 
     public static void main(String[] args) throws Exception {
 
@@ -91,28 +87,8 @@ public class DBTransactionSample {
 
     private static void read() throws SQLException {
         try (Connection connection = createConnection()) {
-            readDB(connection, "TNAME", "name");
-            readDB(connection, "TVALUE", "value");
+            readDB(connection, "TNAME");
+            readDB(connection, "TVALUE");
         }
-    }
-
-    private static void readDB(Connection connection, String table, String column) throws SQLException {
-        String select = "SELECT * from " + table;
-        try (Statement stmt = connection.createStatement()) {
-            ResultSet resultSet = stmt.executeQuery(select);
-            while (resultSet.next()) {
-                long id = resultSet.getLong("ID");
-                Object obj = resultSet.getObject(column);
-                debug("read id: %d, %s: %s%n", id, column, obj);
-            }
-        }
-    }
-
-    private static Connection createConnection() throws SQLException {
-        return DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
-    }
-
-    private static void debug(String format, Object... args) {
-        System.out.printf(format, args);
     }
 }
