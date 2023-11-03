@@ -13,7 +13,6 @@ public class DBFailOverSample {
         }
 
         debug("DB url: %s, user: %s%n", DB_URL, DB_USER);
-        System.out.printf("Records: %d%n", DB_RECORDS);
 
         String command = args[0];
 
@@ -27,6 +26,7 @@ public class DBFailOverSample {
                 check(1);
                 break;
             case "PARALLEL":
+                init();
                 parallel();
                 break;
             default:
