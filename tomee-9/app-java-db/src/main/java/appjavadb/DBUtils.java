@@ -12,7 +12,7 @@ public class DBUtils {
 
     static final String DB_PASS = System.getProperty("db.pass", "");
 
-    static final String DB_TABLE = System.getProperty("db.table");
+    static final String DB_TABLE = System.getProperty("db.table", "TEST_TABLE");
 
     static final int DB_RECORDS = Integer.parseInt(System.getProperty("db.records", "10"));
 
@@ -24,10 +24,17 @@ public class DBUtils {
 
     static final int DB_WRITE_ITERATIONS = Integer.parseInt(System.getProperty("db.writes", "10"));
 
-
     private static boolean DEBUG_LOG = Boolean.getBoolean("db.debug.log");
 
     private static boolean DEBUG_RECORDS = Boolean.getBoolean("db.debug.records");
+
+    static void readDB(String table) throws SQLException {
+        try (Connection connection = createConnection()) {
+            connection.setAutoCommit(false);
+            readDB(connection, table);
+            connection.commit();
+        }
+    }
 
     static void readDB(Connection connection, String table) throws SQLException {
         debugRecords("read table: %s%n", table);
