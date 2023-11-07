@@ -8,9 +8,9 @@ public class DBUtils {
 
     static final String DB_URL = System.getProperty("db.url", "jdbc:hsqldb:file:testdb/test");
 
-    static final String DB_USER = System.getProperty("db.user", "test");
+    static final String DB_USER = System.getProperty("db.user", "TEST");
 
-    static final String DB_PASS = System.getProperty("db.pass", "");
+    static final String DB_PASS = System.getProperty("db.pass", "TEST");
 
     static final String DB_TABLE = System.getProperty("db.table", "TEST_TABLE");
 
@@ -64,6 +64,21 @@ public class DBUtils {
 
     static Connection createConnection() throws SQLException {
         return DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
+    }
+
+    static String getDBNamePath(String dbURL) {
+        String prefix = "hsqldb:file:";
+        int beginIndex = dbURL.indexOf(prefix);
+        if (beginIndex == -1) {
+            throw new RuntimeException("Unable to get db name path from url: %s%n" + dbURL);
+        }
+        beginIndex += prefix.length();
+
+        int endIndex = dbURL.indexOf(';', beginIndex);
+        if (endIndex == -1) {
+            endIndex = dbURL.length();
+        }
+        return dbURL.substring(beginIndex, endIndex);
     }
 
     static void debug(String format, Object... args) {
