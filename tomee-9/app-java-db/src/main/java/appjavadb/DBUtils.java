@@ -24,6 +24,8 @@ public class DBUtils {
 
     static final int DB_WRITE_ITERATIONS = Integer.parseInt(System.getProperty("db.writes", "10"));
 
+    static final String DB_BACKUP = System.getProperty("db.backup", "/tmp/hsqldb-backup.tar.gz");
+
     private static boolean DEBUG_LOG = Boolean.getBoolean("db.debug.log");
 
     private static boolean DEBUG_RECORDS = Boolean.getBoolean("db.debug.records");

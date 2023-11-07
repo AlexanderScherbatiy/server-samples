@@ -37,7 +37,9 @@ public class DBFailOverSample {
     private static void update() throws SQLException {
         int iteration = 0;
         while (true) {
-            System.out.printf("Update start records: %d, iteration: %d ...%n", DB_RECORDS, iteration);
+            int min = 2 * iteration + ((iteration % 2 == 0) ? 0 : 1);
+            System.out.printf("Update start records: %d, min: %d, iteration: %d ...%n",
+                    DB_RECORDS, min, iteration);
             update(iteration);
             System.out.printf("Update end%n");
             iteration++;
@@ -82,6 +84,7 @@ public class DBFailOverSample {
 
         final String TEMPLATE_UPDATE_TABLE = String.format(
                 "update %s set name=?, value=?, flag=? where id=?", DB_TABLE);
+
 
         boolean isEven = (count % 2 == 0);
         try (Connection connection = createConnection()) {
