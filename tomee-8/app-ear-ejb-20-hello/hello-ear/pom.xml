@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>appearejb20hello</groupId>
+    <artifactId>hello-ear</artifactId>
+    <version>1.0</version>
+    <packaging>ear</packaging>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <failOnMissingWebXml>false</failOnMissingWebXml>
+        <javaee-api.version>8.0.1</javaee-api.version>
+        <tomee.version>8.0.14</tomee.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>appearejb20hello</groupId>
+            <artifactId>hello-war</artifactId>
+            <version>1.0</version>
+            <type>war</type>
+        </dependency>
+        <dependency>
+            <groupId>appearejb20hello</groupId>
+            <artifactId>hello-ejb</artifactId>
+            <version>1.0</version>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-ear-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <modules>
+                        <webModule>
+                            <groupId>appearejb20hello</groupId>
+                            <artifactId>hello-war</artifactId>
+                            <contextRoot>/appearejb20hello</contextRoot>
+                        </webModule>
+                        <ejbModule>
+                            <groupId>appearejb20hello</groupId>
+                            <artifactId>hello-ejb</artifactId>
+                            <type>jar</type>
+                        </ejbModule>
+                    </modules>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+
